@@ -621,18 +621,18 @@ function registerTrash(pi: ExtensionAPI) {
 function buildGuidance(_options: BuildSystemPromptOptions, basePrompt: string): string {
 	return `${basePrompt}
 
-## Standard Tool Rules
+## CodeCraft Tool Rules
 
-- Prefer the custom tools exposed by the Standard Tools extension:
+- Prefer the custom tools exposed by the Pi CodeCraft extension:
   - Use \`rg\` instead of the built-in \`grep\` tool.
   - Use \`fd\` instead of the built-in \`find\` tool or \`ls -R\`.
   - Use \`ast_grep\` for structure-aware code search and refactoring.
   - Use \`format_file\` after editing code when the project uses Prettier or Biome.
   - Use \`git_status\` to review changes before finishing a task.
-- Do **not** use `apply_patch` or equivalent patch commands. Prefer `quick_edit` (line-number edits) and `target_edit` (marker edits). Fall back to built-in `edit`/`write` only when those are not available.
-- Do **not** delete files or folders with `rm`, `rm -rf`, `rmdir`, or `unlink`. Move them to `/tmp` using the `trash` tool instead.
-- Never run `git commit`, `git push`, or other destructive shell commands without explicit user confirmation.
-- Avoid using `grep` or `find` through `bash`; use the dedicated tools instead.
+- Do **not** use \`apply_patch\` or equivalent patch commands. Prefer \`quick_edit\` (line-number edits) and \`target_edit\` (marker edits). Fall back to built-in \`edit\` / \`write\` only when those are not available.
+- Do **not** delete files or folders with \`rm\`, \`rm -rf\`, \`rmdir\`, or \`unlink\`. Move them to \`/tmp\` using the \`trash\` tool instead.
+- Never run \`git commit\`, \`git push\`, or other destructive shell commands without explicit user confirmation.
+- Avoid using \`grep\` or \`find\` through \`bash\`; use the dedicated tools instead.
 `;
 }
 
@@ -776,7 +776,7 @@ function registerFastEditTools(pi: ExtensionAPI) {
 // Entrypoint
 // ---------------------------------------------------------------------------
 
-export default async function standardToolsExtension(pi: ExtensionAPI) {
+export default async function codecraftExtension(pi: ExtensionAPI) {
 	registerFastEditTools(pi);
 
 	registerRg(pi);
@@ -788,3 +788,9 @@ export default async function standardToolsExtension(pi: ExtensionAPI) {
 	registerPromptInjector(pi);
 	registerGuardrails(pi);
 }
+
+/**
+ * Backward-compatible alias for the previous extension name.
+ * @deprecated Use `codecraftExtension` instead.
+ */
+export const standardToolsExtension = codecraftExtension;

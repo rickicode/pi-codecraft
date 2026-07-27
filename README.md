@@ -32,15 +32,15 @@ A rich Pi extension that replaces built-in search and edit tools with precise, g
 Run once:
 
 ```bash
-pi -e /workspaces/pi-standard-tools/extension.ts
+pi -e /workspaces/pi-codecraft/extension.ts
 ```
 
 Install globally so it loads automatically:
 
 ```bash
 mkdir -p ~/.pi/agent/extensions
-cp /workspaces/pi-standard-tools/extension.ts ~/.pi/agent/extensions/standard-tools.ts
-cp /workspaces/pi-standard-tools/fast-edit.ts ~/.pi/agent/extensions/fast-edit.ts
+cp /workspaces/pi-codecraft/extension.ts ~/.pi/agent/extensions/pi-codecraft.ts
+cp /workspaces/pi-codecraft/fast-edit.ts ~/.pi/agent/extensions/fast-edit.ts
 ```
 
 Then start Pi normally in any project.
