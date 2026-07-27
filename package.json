@@ -1,0 +1,19 @@
+{
+  "name": "pi-codecraft",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit --ignoreConfig --skipLibCheck --module ES2022 --moduleResolution bundler --target ES2022 --types node __tests__/fast-edit.test.ts fast-edit.ts"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-ai": "^0.82.1",
+    "@earendil-works/pi-coding-agent": "^0.82.1",
+    "@types/node": "^22.13.13",
+    "@vitest/coverage-v8": "^4.1.10",
+    "c8": "^12.0.0",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.10"
+  }
+}
