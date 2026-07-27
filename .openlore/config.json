@@ -1,0 +1,39 @@
+{
+  "version": "1.0.0",
+  "projectType": "nodejs",
+  "openspecPath": "./openspec",
+  "analysis": {
+    "maxFiles": 100000,
+    "includePatterns": [],
+    "excludePatterns": [
+      "**/*.test.ts",
+      "**/*.test.js",
+      "**/*.spec.ts",
+      "**/*.spec.js",
+      "**/__tests__/**",
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/.next/**",
+      "**/.svelte-kit/**",
+      "**/.nuxt/**",
+      "**/*.min.js",
+      "**/*.min.css",
+      "**/coverage/**",
+      "**/playwright-report/**",
+      "**/storybook-static/**"
+    ]
+  },
+  "generation": {
+    "provider": "openai-compat",
+    "model": "cf/moonshotai/kimi-k2.6",
+    "openaiCompatBaseUrl": "http://192.168.90.101:3777/v1",
+    "disableResponseFormat": true,
+    "domains": "auto"
+  },
+  "panicResponse": {
+    "mode": "off"
+  },
+  "createdAt": "2026-07-27T08:59:03.715Z",
+  "lastRun": null
+}

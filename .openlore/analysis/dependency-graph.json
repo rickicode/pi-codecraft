@@ -1,0 +1,497 @@
+{
+  "nodes": [
+    {
+      "id": "/workspaces/pi-standard-tools/extension.ts",
+      "file": {
+        "path": "extension.ts",
+        "absolutePath": "/workspaces/pi-standard-tools/extension.ts",
+        "name": "extension.ts",
+        "extension": ".ts",
+        "size": 27992,
+        "lines": 791,
+        "depth": 0,
+        "directory": "",
+        "isEntryPoint": false,
+        "isConfig": false,
+        "isTest": false,
+        "isGenerated": false,
+        "score": 40,
+        "scoreBreakdown": {
+          "name": 0,
+          "path": 15,
+          "structure": 25,
+          "connectivity": 0
+        },
+        "tags": []
+      },
+      "exports": [
+        {
+          "name": "standardToolsExtension",
+          "isDefault": true,
+          "isType": false,
+          "isReExport": false,
+          "kind": "function",
+          "line": 779
+        }
+      ],
+      "metrics": {
+        "inDegree": 0,
+        "outDegree": 1,
+        "betweenness": 0,
+        "pageRank": 0.5405405405405405
+      },
+      "cluster": {
+        "id": "cluster-0",
+        "name": "(root)",
+        "color": "#7c6af7"
+      }
+    },
+    {
+      "id": "/workspaces/pi-standard-tools/fast-edit.ts",
+      "file": {
+        "path": "fast-edit.ts",
+        "absolutePath": "/workspaces/pi-standard-tools/fast-edit.ts",
+        "name": "fast-edit.ts",
+        "extension": ".ts",
+        "size": 36563,
+        "lines": 931,
+        "depth": 0,
+        "directory": "",
+        "isEntryPoint": false,
+        "isConfig": false,
+        "isTest": false,
+        "isGenerated": false,
+        "score": 40,
+        "scoreBreakdown": {
+          "name": 0,
+          "path": 15,
+          "structure": 25,
+          "connectivity": 0
+        },
+        "tags": []
+      },
+      "exports": [
+        {
+          "name": "QuickEditParams",
+          "isDefault": false,
+          "isType": false,
+          "isReExport": false,
+          "kind": "variable",
+          "line": 55
+        },
+        {
+          "name": "TargetEditParams",
+          "isDefault": false,
+          "isType": false,
+          "isReExport": false,
+          "kind": "variable",
+          "line": 75
+        },
+        {
+          "name": "FAST_EDIT_ERROR_MARKER",
+          "isDefault": false,
+          "isType": false,
+          "isReExport": false,
+          "kind": "variable",
+          "line": 154
+        },
+        {
+          "name": "CONTEXT_LINES",
+          "isDefault": false,
+          "isType": false,
+          "isReExport": false,
+          "kind": "variable",
+          "line": 244
+        },
+        {
+          "name": "formatDiffs",
+          "isDefault": false,
+          "isType": false,
+          "isReExport": false,
+          "kind": "function",
+          "line": 249
+        },
+        {
+          "name": "formatContexts",
+          "isDefault": false,
+          "isType": false,
+          "isReExport": false,
+          "kind": "function",
+          "line": 267
+        },
+        {
+          "name": "applyQuickEdits",
+          "isDefault": false,
+          "isType": false,
+          "isReExport": false,
+          "kind": "function",
+          "line": 368
+        },
+        {
+          "name": "applyTargetEdits",
+          "isDefault": false,
+          "isType": false,
+          "isReExport": false,
+          "kind": "function",
+          "line": 814
+        },
+        {
+          "name": "preferFastEditTools",
+          "isDefault": false,
+          "isType": false,
+          "isReExport": false,
+          "kind": "function",
+          "line": 900
+        },
+        {
+          "name": "numberReadText",
+          "isDefault": false,
+          "isType": false,
+          "isReExport": false,
+          "kind": "function",
+          "line": 914
+        },
+        {
+          "name": "FastEditError",
+          "isDefault": false,
+          "isType": false,
+          "isReExport": false,
+          "kind": "class",
+          "line": 156
+        },
+        {
+          "name": "QuickEditInput",
+          "isDefault": false,
+          "isType": true,
+          "isReExport": false,
+          "kind": "type",
+          "line": 63
+        },
+        {
+          "name": "Edit",
+          "isDefault": false,
+          "isType": true,
+          "isReExport": false,
+          "kind": "type",
+          "line": 64
+        },
+        {
+          "name": "TargetEditInput",
+          "isDefault": false,
+          "isType": true,
+          "isReExport": false,
+          "kind": "type",
+          "line": 119
+        },
+        {
+          "name": "TargetEditOp",
+          "isDefault": false,
+          "isType": true,
+          "isReExport": false,
+          "kind": "type",
+          "line": 120
+        },
+        {
+          "name": "EditErrorCode",
+          "isDefault": false,
+          "isType": true,
+          "isReExport": false,
+          "kind": "type",
+          "line": 126
+        },
+        {
+          "name": "EditFailureCandidate",
+          "isDefault": false,
+          "isType": true,
+          "isReExport": false,
+          "kind": "type",
+          "line": 138
+        },
+        {
+          "name": "EditFailure",
+          "isDefault": false,
+          "isType": true,
+          "isReExport": false,
+          "kind": "type",
+          "line": 140
+        },
+        {
+          "name": "EditDiff",
+          "isDefault": false,
+          "isType": true,
+          "isReExport": false,
+          "kind": "type",
+          "line": 246
+        },
+        {
+          "name": "ContextRange",
+          "isDefault": false,
+          "isType": true,
+          "isReExport": false,
+          "kind": "type",
+          "line": 247
+        }
+      ],
+      "metrics": {
+        "inDegree": 1,
+        "outDegree": 0,
+        "betweenness": 0,
+        "pageRank": 1
+      },
+      "cluster": {
+        "id": "cluster-0",
+        "name": "(root)",
+        "color": "#7c6af7"
+      }
+    },
+    {
+      "id": "/workspaces/pi-standard-tools/PRD.md",
+      "file": {
+        "path": "PRD.md",
+        "absolutePath": "/workspaces/pi-standard-tools/PRD.md",
+        "name": "PRD.md",
+        "extension": ".md",
+        "size": 4751,
+        "lines": 144,
+        "depth": 0,
+        "directory": "",
+        "isEntryPoint": false,
+        "isConfig": false,
+        "isTest": false,
+        "isGenerated": false,
+        "score": 20,
+        "scoreBreakdown": {
+          "name": 0,
+          "path": 15,
+          "structure": 5,
+          "connectivity": 0
+        },
+        "tags": []
+      },
+      "exports": [],
+      "metrics": {
+        "inDegree": 0,
+        "outDegree": 0,
+        "betweenness": 0,
+        "pageRank": 0.5405405405405405
+      },
+      "cluster": {
+        "id": "cluster-0",
+        "name": "(root)",
+        "color": "#7c6af7"
+      }
+    },
+    {
+      "id": "/workspaces/pi-standard-tools/README.md",
+      "file": {
+        "path": "README.md",
+        "absolutePath": "/workspaces/pi-standard-tools/README.md",
+        "name": "README.md",
+        "extension": ".md",
+        "size": 1791,
+        "lines": 47,
+        "depth": 0,
+        "directory": "",
+        "isEntryPoint": false,
+        "isConfig": false,
+        "isTest": false,
+        "isGenerated": false,
+        "score": 15,
+        "scoreBreakdown": {
+          "name": 0,
+          "path": 15,
+          "structure": 0,
+          "connectivity": 0
+        },
+        "tags": []
+      },
+      "exports": [],
+      "metrics": {
+        "inDegree": 0,
+        "outDegree": 0,
+        "betweenness": 0,
+        "pageRank": 0.5405405405405405
+      },
+      "cluster": {
+        "id": "cluster-0",
+        "name": "(root)",
+        "color": "#7c6af7"
+      }
+    },
+    {
+      "id": "/workspaces/pi-standard-tools/.gitignore",
+      "file": {
+        "path": ".gitignore",
+        "absolutePath": "/workspaces/pi-standard-tools/.gitignore",
+        "name": ".gitignore",
+        "extension": "",
+        "size": 0,
+        "lines": 1,
+        "depth": 0,
+        "directory": "",
+        "isEntryPoint": false,
+        "isConfig": false,
+        "isTest": false,
+        "isGenerated": false,
+        "score": 15,
+        "scoreBreakdown": {
+          "name": 0,
+          "path": 15,
+          "structure": 0,
+          "connectivity": 0
+        },
+        "tags": []
+      },
+      "exports": [],
+      "metrics": {
+        "inDegree": 0,
+        "outDegree": 0,
+        "betweenness": 0,
+        "pageRank": 0.5405405405405405
+      },
+      "cluster": {
+        "id": "cluster-0",
+        "name": "(root)",
+        "color": "#7c6af7"
+      }
+    },
+    {
+      "id": "/workspaces/pi-standard-tools/.mcp.json",
+      "file": {
+        "path": ".mcp.json",
+        "absolutePath": "/workspaces/pi-standard-tools/.mcp.json",
+        "name": ".mcp.json",
+        "extension": ".json",
+        "size": 415,
+        "lines": 26,
+        "depth": 0,
+        "directory": "",
+        "isEntryPoint": false,
+        "isConfig": false,
+        "isTest": false,
+        "isGenerated": false,
+        "score": 15,
+        "scoreBreakdown": {
+          "name": 0,
+          "path": 15,
+          "structure": 0,
+          "connectivity": 0
+        },
+        "tags": []
+      },
+      "exports": [],
+      "metrics": {
+        "inDegree": 0,
+        "outDegree": 0,
+        "betweenness": 0,
+        "pageRank": 0.5405405405405405
+      },
+      "cluster": {
+        "id": "cluster-0",
+        "name": "(root)",
+        "color": "#7c6af7"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "/workspaces/pi-standard-tools/extension.ts",
+      "target": "/workspaces/pi-standard-tools/fast-edit.ts",
+      "importedNames": [
+        "applyQuickEdits",
+        "applyTargetEdits",
+        "preferFastEditTools",
+        "numberReadText",
+        "QuickEditParams",
+        "TargetEditParams"
+      ],
+      "isTypeOnly": false,
+      "weight": 1
+    }
+  ],
+  "clusters": [
+    {
+      "id": "cluster-0",
+      "name": "(root)",
+      "files": [
+        "/workspaces/pi-standard-tools/extension.ts",
+        "/workspaces/pi-standard-tools/fast-edit.ts",
+        "/workspaces/pi-standard-tools/PRD.md",
+        "/workspaces/pi-standard-tools/README.md",
+        "/workspaces/pi-standard-tools/.gitignore",
+        "/workspaces/pi-standard-tools/.mcp.json"
+      ],
+      "internalEdges": 1,
+      "externalEdges": 0,
+      "cohesion": 0.03333333333333333,
+      "coupling": 0,
+      "suggestedDomain": "extension",
+      "color": "#7c6af7",
+      "isStructural": true
+    }
+  ],
+  "structuralClusters": [
+    {
+      "id": "cluster-0",
+      "name": "(root)",
+      "files": [
+        "/workspaces/pi-standard-tools/extension.ts",
+        "/workspaces/pi-standard-tools/fast-edit.ts",
+        "/workspaces/pi-standard-tools/PRD.md",
+        "/workspaces/pi-standard-tools/README.md",
+        "/workspaces/pi-standard-tools/.gitignore",
+        "/workspaces/pi-standard-tools/.mcp.json"
+      ],
+      "internalEdges": 1,
+      "externalEdges": 0,
+      "cohesion": 0.03333333333333333,
+      "coupling": 0,
+      "suggestedDomain": "extension",
+      "color": "#7c6af7",
+      "isStructural": true
+    }
+  ],
+  "rankings": {
+    "byImportance": [
+      "/workspaces/pi-standard-tools/fast-edit.ts",
+      "/workspaces/pi-standard-tools/extension.ts",
+      "/workspaces/pi-standard-tools/PRD.md",
+      "/workspaces/pi-standard-tools/README.md",
+      "/workspaces/pi-standard-tools/.gitignore",
+      "/workspaces/pi-standard-tools/.mcp.json"
+    ],
+    "byConnectivity": [
+      "/workspaces/pi-standard-tools/extension.ts",
+      "/workspaces/pi-standard-tools/fast-edit.ts",
+      "/workspaces/pi-standard-tools/PRD.md",
+      "/workspaces/pi-standard-tools/README.md",
+      "/workspaces/pi-standard-tools/.gitignore",
+      "/workspaces/pi-standard-tools/.mcp.json"
+    ],
+    "clusterCenters": [
+      "/workspaces/pi-standard-tools/fast-edit.ts"
+    ],
+    "leafNodes": [
+      "/workspaces/pi-standard-tools/extension.ts"
+    ],
+    "bridgeNodes": [],
+    "orphanNodes": [
+      "/workspaces/pi-standard-tools/PRD.md",
+      "/workspaces/pi-standard-tools/README.md",
+      "/workspaces/pi-standard-tools/.gitignore",
+      "/workspaces/pi-standard-tools/.mcp.json"
+    ]
+  },
+  "cycles": [],
+  "statistics": {
+    "nodeCount": 6,
+    "edgeCount": 1,
+    "importEdgeCount": 1,
+    "httpEdgeCount": 0,
+    "avgDegree": 0.3333333333333333,
+    "density": 0.03333333333333333,
+    "clusterCount": 1,
+    "structuralClusterCount": 1,
+    "cycleCount": 0
+  }
+}

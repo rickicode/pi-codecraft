@@ -1,0 +1,255 @@
+{
+  "schemaVersion": 1,
+  "evidenceFloor": 12,
+  "byLanguage": [
+    {
+      "language": "TypeScript",
+      "idioms": {
+        "functionForm": {
+          "dominant": "declaration",
+          "ratio": 0.8507,
+          "samples": 67,
+          "options": {
+            "arrow": 1,
+            "declaration": 57,
+            "method": 9
+          }
+        },
+        "binding": {
+          "dominant": "const",
+          "ratio": 0.8657,
+          "samples": 216,
+          "options": {
+            "const": 187,
+            "let": 29
+          }
+        },
+        "conditionalForm": {
+          "dominant": "if",
+          "ratio": 0.7799,
+          "samples": 159,
+          "options": {
+            "if": 124,
+            "ternary": 35
+          }
+        },
+        "asyncForm": {
+          "dominant": "await",
+          "ratio": 1,
+          "samples": 33,
+          "options": {
+            "await": 33
+          }
+        },
+        "stringForm": {
+          "dominant": "template",
+          "ratio": 1,
+          "samples": 93,
+          "options": {
+            "template": 93
+          }
+        },
+        "functionNaming": {
+          "dominant": "camelCase",
+          "ratio": 1,
+          "samples": 62,
+          "options": {
+            "camelCase": 62
+          }
+        }
+      },
+      "functionsSampled": 74
+    }
+  ],
+  "regions": [
+    {
+      "communityId": "extension.ts::standardToolsExtension",
+      "label": "registerRg",
+      "byLanguage": [
+        {
+          "language": "TypeScript",
+          "idioms": {
+            "functionForm": {
+              "dominant": "declaration",
+              "ratio": 0.6667,
+              "samples": 27,
+              "options": {
+                "arrow": 1,
+                "declaration": 18,
+                "method": 8
+              }
+            },
+            "binding": {
+              "dominant": "const",
+              "ratio": 0.8553,
+              "samples": 76,
+              "options": {
+                "const": 65,
+                "let": 11
+              }
+            },
+            "conditionalForm": {
+              "dominant": "if",
+              "ratio": 0.7755,
+              "samples": 49,
+              "options": {
+                "if": 38,
+                "ternary": 11
+              }
+            },
+            "asyncForm": {
+              "dominant": "await",
+              "ratio": 1,
+              "samples": 29,
+              "options": {
+                "await": 29
+              }
+            },
+            "stringForm": {
+              "dominant": "template",
+              "ratio": 1,
+              "samples": 37,
+              "options": {
+                "template": 37
+              }
+            },
+            "functionNaming": {
+              "dominant": "camelCase",
+              "ratio": 1,
+              "samples": 19,
+              "options": {
+                "camelCase": 19
+              }
+            }
+          },
+          "functionsSampled": 28
+        }
+      ]
+    },
+    {
+      "communityId": "fast-edit.ts::fail",
+      "label": "splitBom",
+      "byLanguage": [
+        {
+          "language": "TypeScript",
+          "idioms": {
+            "functionForm": {
+              "dominant": "declaration",
+              "ratio": 0.975,
+              "samples": 40,
+              "options": {
+                "declaration": 39,
+                "method": 1
+              }
+            },
+            "binding": {
+              "dominant": "const",
+              "ratio": 0.8714,
+              "samples": 140,
+              "options": {
+                "const": 122,
+                "let": 18
+              }
+            },
+            "conditionalForm": {
+              "dominant": "if",
+              "ratio": 0.7818,
+              "samples": 110,
+              "options": {
+                "if": 86,
+                "ternary": 24
+              }
+            },
+            "asyncForm": {
+              "signal": null,
+              "reason": "below_floor"
+            },
+            "stringForm": {
+              "dominant": "template",
+              "ratio": 1,
+              "samples": 56,
+              "options": {
+                "template": 56
+              }
+            },
+            "functionNaming": {
+              "dominant": "camelCase",
+              "ratio": 1,
+              "samples": 43,
+              "options": {
+                "camelCase": 43
+              }
+            }
+          },
+          "functionsSampled": 46
+        }
+      ]
+    }
+  ],
+  "files": [
+    {
+      "filePath": "extension.ts",
+      "language": "TypeScript",
+      "counters": {
+        "functionNaming": {
+          "camelCase": 19
+        },
+        "functionForm": {
+          "declaration": 18,
+          "method": 8,
+          "arrow": 1
+        },
+        "binding": {
+          "let": 11,
+          "const": 65
+        },
+        "conditionalForm": {
+          "if": 38,
+          "ternary": 11
+        },
+        "asyncForm": {
+          "await": 29
+        },
+        "stringForm": {
+          "template": 37
+        }
+      },
+      "functionsSampled": 28
+    },
+    {
+      "filePath": "fast-edit.ts",
+      "language": "TypeScript",
+      "counters": {
+        "functionNaming": {
+          "camelCase": 43
+        },
+        "functionForm": {
+          "method": 1,
+          "declaration": 39
+        },
+        "binding": {
+          "const": 122,
+          "let": 18
+        },
+        "conditionalForm": {
+          "ternary": 24,
+          "if": 86
+        },
+        "asyncForm": {
+          "await": 4
+        },
+        "stringForm": {
+          "template": 56
+        }
+      },
+      "functionsSampled": 46
+    }
+  ],
+  "fileRegions": {
+    "extension.ts": "extension.ts::standardToolsExtension",
+    "fast-edit.ts": "fast-edit.ts::fail"
+  },
+  "generatedLanguages": [
+    "TypeScript"
+  ]
+}

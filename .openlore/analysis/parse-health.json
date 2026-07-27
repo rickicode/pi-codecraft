@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "totalDegradedFiles": 1,
+  "totalErrorRegions": 15,
+  "byLanguage": [
+    {
+      "language": "TypeScript",
+      "degradedFiles": 1,
+      "errorRegions": 15,
+      "parseFailures": 0,
+      "encodingFallbacks": 0
+    }
+  ],
+  "topFiles": [
+    {
+      "filePath": "extension.ts",
+      "language": "TypeScript",
+      "errorCount": 11,
+      "missingCount": 4,
+      "errorLines": [
+        632,
+        633,
+        634,
+        635
+      ]
+    }
+  ],
+  "files": [
+    {
+      "filePath": "extension.ts",
+      "language": "TypeScript",
+      "errorCount": 11,
+      "missingCount": 4,
+      "errorLines": [
+        632,
+        633,
+        634,
+        635
+      ]
+    }
+  ]
+}

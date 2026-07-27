@@ -1,0 +1,20 @@
+[warn] [serve] No token configured — any local process on this machine can call openlore tools on 127.0.0.1. Pass --token to restrict access.
+(node:9123) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[ok] openlore serve listening on http://127.0.0.1:11807 (preset: substrate)
+[scan] Discovery file: /workspaces/pi-standard-tools/.openlore/serve.json
+[mcp-watcher] watching /workspaces/pi-standard-tools
+[scan] [serve] watching /workspaces/pi-standard-tools — signatures/vector live, call-graph re-analyze debounced
+[scan] [serve] idle shutdown after 15min of inactivity
+[ok] Successfully validated directory: /workspaces/pi-standard-tools
+[ok] Successfully validated directory: /workspaces/pi-standard-tools
+[ok] Successfully validated directory: /workspaces/pi-standard-tools
+[ok] Successfully validated directory: /workspaces/pi-standard-tools
+[ok] Successfully validated directory: /workspaces/pi-standard-tools
+[ok] Successfully validated directory: /workspaces/pi-standard-tools
+[ok] Successfully validated directory: /workspaces/pi-standard-tools
+[ok] Successfully validated directory: /workspaces/pi-standard-tools
+[ok] Successfully validated directory: /workspaces/pi-standard-tools
+[ok] Successfully validated directory: /workspaces/pi-standard-tools
+[ok] Successfully validated directory: /workspaces/pi-standard-tools
+[ok] Successfully validated directory: /workspaces/pi-standard-tools

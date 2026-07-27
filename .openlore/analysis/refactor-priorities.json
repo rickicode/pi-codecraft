@@ -1,0 +1,317 @@
+{
+  "generatedAt": "2026-07-27T08:59:07.302Z",
+  "stats": {
+    "totalFunctions": 67,
+    "withIssues": 21,
+    "unreachable": 0,
+    "highFanIn": 0,
+    "highFanOut": 7,
+    "srpViolations": 0,
+    "cycleParticipants": 0,
+    "cyclesDetected": 0,
+    "highComplexity": 12
+  },
+  "priorities": [
+    {
+      "function": "applyQuickEdits",
+      "file": "fast-edit.ts",
+      "fanIn": 1,
+      "fanOut": 24,
+      "depth": 1,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "high_fan_out",
+        "high_complexity"
+      ],
+      "cyclomaticComplexity": 22,
+      "priorityScore": 7.8
+    },
+    {
+      "function": "applyTargetEdits",
+      "file": "fast-edit.ts",
+      "fanIn": 1,
+      "fanOut": 17,
+      "depth": 1,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "high_fan_out",
+        "high_complexity"
+      ],
+      "cyclomaticComplexity": 27,
+      "priorityScore": 7.7
+    },
+    {
+      "function": "selectedOccurrences",
+      "file": "fast-edit.ts",
+      "fanIn": 1,
+      "fanOut": 8,
+      "depth": 2,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "high_fan_out",
+        "high_complexity"
+      ],
+      "cyclomaticComplexity": 31,
+      "priorityScore": 7
+    },
+    {
+      "function": "execute",
+      "file": "extension.ts",
+      "fanIn": 0,
+      "fanOut": 5,
+      "depth": 0,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "high_complexity",
+        "in_clone_group"
+      ],
+      "cyclomaticComplexity": 15,
+      "priorityScore": 4.3
+    },
+    {
+      "function": "execute",
+      "file": "extension.ts",
+      "fanIn": 0,
+      "fanOut": 7,
+      "depth": 0,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "high_complexity",
+        "in_clone_group"
+      ],
+      "cyclomaticComplexity": 12,
+      "priorityScore": 3.8
+    },
+    {
+      "function": "execute",
+      "file": "extension.ts",
+      "fanIn": 0,
+      "fanOut": 7,
+      "depth": 0,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "high_complexity",
+        "in_clone_group"
+      ],
+      "cyclomaticComplexity": 11,
+      "priorityScore": 3.7
+    },
+    {
+      "function": "registerFastEditTools",
+      "file": "extension.ts",
+      "fanIn": 1,
+      "fanOut": 12,
+      "depth": 1,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "high_fan_out"
+      ],
+      "cyclomaticComplexity": 9,
+      "priorityScore": 3
+    },
+    {
+      "function": "validateQuickLineRange",
+      "file": "fast-edit.ts",
+      "fanIn": 1,
+      "fanOut": 2,
+      "depth": 2,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "high_complexity"
+      ],
+      "cyclomaticComplexity": 16,
+      "priorityScore": 2.9
+    },
+    {
+      "function": "registerAstGrep",
+      "file": "extension.ts",
+      "fanIn": 1,
+      "fanOut": 1,
+      "depth": 1,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "high_complexity"
+      ],
+      "cyclomaticComplexity": 15,
+      "priorityScore": 2.8
+    },
+    {
+      "function": "standardToolsExtension",
+      "file": "extension.ts",
+      "fanIn": 0,
+      "fanOut": 9,
+      "depth": 0,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "high_fan_out"
+      ],
+      "cyclomaticComplexity": 1,
+      "priorityScore": 2.6
+    },
+    {
+      "function": "numberReadText",
+      "file": "fast-edit.ts",
+      "fanIn": 1,
+      "fanOut": 8,
+      "depth": 2,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "high_fan_out"
+      ],
+      "cyclomaticComplexity": 6,
+      "priorityScore": 2.5
+    },
+    {
+      "function": "registerFd",
+      "file": "extension.ts",
+      "fanIn": 1,
+      "fanOut": 1,
+      "depth": 1,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "high_complexity"
+      ],
+      "cyclomaticComplexity": 12,
+      "priorityScore": 2.3
+    },
+    {
+      "function": "registerRg",
+      "file": "extension.ts",
+      "fanIn": 1,
+      "fanOut": 1,
+      "depth": 1,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "high_complexity"
+      ],
+      "cyclomaticComplexity": 11,
+      "priorityScore": 2.2
+    },
+    {
+      "function": "detectFormatter",
+      "file": "extension.ts",
+      "fanIn": 1,
+      "fanOut": 1,
+      "depth": 1,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "high_complexity"
+      ],
+      "cyclomaticComplexity": 10,
+      "priorityScore": 2
+    },
+    {
+      "function": "execute",
+      "file": "extension.ts",
+      "fanIn": 0,
+      "fanOut": 4,
+      "depth": 0,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "in_clone_group"
+      ],
+      "cyclomaticComplexity": 5,
+      "priorityScore": 2
+    },
+    {
+      "function": "execute",
+      "file": "extension.ts",
+      "fanIn": 0,
+      "fanOut": 2,
+      "depth": 0,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "in_clone_group"
+      ],
+      "cyclomaticComplexity": 3,
+      "priorityScore": 2
+    },
+    {
+      "function": "execute",
+      "file": "extension.ts",
+      "fanIn": 0,
+      "fanOut": 3,
+      "depth": 0,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "in_clone_group"
+      ],
+      "cyclomaticComplexity": 2,
+      "priorityScore": 2
+    },
+    {
+      "function": "execute",
+      "file": "extension.ts",
+      "fanIn": 0,
+      "fanOut": 2,
+      "depth": 0,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "in_clone_group"
+      ],
+      "cyclomaticComplexity": 1,
+      "priorityScore": 2
+    },
+    {
+      "function": "execute",
+      "file": "extension.ts",
+      "fanIn": 0,
+      "fanOut": 2,
+      "depth": 0,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "in_clone_group"
+      ],
+      "cyclomaticComplexity": 1,
+      "priorityScore": 2
+    },
+    {
+      "function": "unescapeLiteral",
+      "file": "fast-edit.ts",
+      "fanIn": 3,
+      "fanOut": 1,
+      "depth": 2,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "high_complexity"
+      ],
+      "cyclomaticComplexity": 10,
+      "priorityScore": 2
+    },
+    {
+      "function": "findTrimmedOccurrences",
+      "file": "fast-edit.ts",
+      "fanIn": 1,
+      "fanOut": 8,
+      "depth": 4,
+      "sccSize": 1,
+      "requirements": [],
+      "issues": [
+        "high_fan_out"
+      ],
+      "cyclomaticComplexity": 8,
+      "priorityScore": 2
+    }
+  ],
+  "cycles": []
+}

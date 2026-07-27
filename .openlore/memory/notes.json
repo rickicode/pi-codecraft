@@ -1,0 +1,27 @@
+{
+  "version": "1",
+  "updatedAt": "2026-07-27T09:02:33.658Z",
+  "sequence": 1,
+  "memories": [
+    {
+      "id": "147e7c88",
+      "kind": "note",
+      "content": "fast-edit.ts in pi-standard-tools is intentionally a lightweight reimplementation of pi-snap-edit, not a wrapper. It omits fuzzy close-line-match diagnostics, substitute_edit, per-op diff reporting, custom TUI render results, and parseable error recovery that pi-snap-edit provides. To improve UX maintainability, consider either depending on pi-snap-edit directly or porting its fuzzy.ts, edit-error.ts parse function, and substitute-edit logic into fast-edit.ts.",
+      "anchors": [
+        {
+          "filePath": "fast-edit.ts",
+          "contentHash": "c0aa1cab541d9dcb"
+        },
+        {
+          "nodeId": "extension.ts::registerFastEditTools",
+          "stableId": "sid:registerFastEditTools(pi: ExtensionAPI)",
+          "symbolName": "registerFastEditTools",
+          "filePath": "extension.ts",
+          "contentHash": "d68d9358a466b340"
+        }
+      ],
+      "recordedAt": "2026-07-27T09:02:33.656Z",
+      "type": "note"
+    }
+  ]
+}

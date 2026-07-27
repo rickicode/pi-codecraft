@@ -1,0 +1,65 @@
+{
+  "projectName": "pi-standard-tools",
+  "projectType": "unknown",
+  "frameworks": [],
+  "architecture": {
+    "pattern": "monolith",
+    "layers": []
+  },
+  "domains": [
+    {
+      "name": "extension",
+      "suggestedSpecPath": "openspec/specs/extension/spec.md",
+      "files": [
+        "extension.ts",
+        "fast-edit.ts",
+        "PRD.md",
+        "README.md",
+        ".gitignore",
+        ".mcp.json"
+      ],
+      "entities": [
+        "Extension",
+        "FastEdit",
+        "PRD",
+        "README",
+        "Mcp"
+      ],
+      "keyFile": "extension.ts"
+    }
+  ],
+  "entryPoints": [],
+  "dataFlow": {
+    "sources": [],
+    "sinks": [],
+    "transformers": []
+  },
+  "keyFiles": {
+    "schemas": [],
+    "config": [],
+    "auth": [],
+    "database": [],
+    "routes": [],
+    "services": []
+  },
+  "uiComponents": [],
+  "schemas": [],
+  "routeInventory": {
+    "total": 0,
+    "byMethod": {},
+    "byFramework": {},
+    "routes": []
+  },
+  "middleware": [],
+  "envVars": [],
+  "statistics": {
+    "totalFiles": 8,
+    "analyzedFiles": 6,
+    "skippedFiles": 2,
+    "avgFileScore": 24.2,
+    "nodeCount": 6,
+    "edgeCount": 1,
+    "cycleCount": 0,
+    "clusterCount": 1
+  }
+}

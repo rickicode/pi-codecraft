@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "basic-memory": {
+      "type": "stdio",
+      "command": "basic-memory",
+      "args": [
+        "mcp",
+        "--project",
+        "pi-codecraft"
+      ],
+      "disabled": false,
+      "directTools": true
+    },
+    "openlore": {
+      "command": "npx",
+      "args": [
+        "--yes",
+        "openlore",
+        "mcp",
+        "--preset",
+        "substrate"
+      ]
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "cloneGroups": [
+    {
+      "type": "structural",
+      "similarity": 1,
+      "instances": [
+        {
+          "file": "extension.ts",
+          "functionName": "execute",
+          "startLine": 716,
+          "endLine": 720
+        },
+        {
+          "file": "extension.ts",
+          "functionName": "execute",
+          "startLine": 737,
+          "endLine": 741
+        }
+      ],
+      "lineCount": 5
+    }
+  ],
+  "stats": {
+    "totalFunctions": 52,
+    "duplicatedFunctions": 2,
+    "duplicationRatio": 0.038,
+    "cloneGroupCount": 1
+  }
+}
