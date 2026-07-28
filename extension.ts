@@ -34,7 +34,9 @@ import {
 	numberReadText,
 	QuickEditParams,
 	TargetEditParams,
+	summarizeQuickEditOutput,
 } from "./fast-edit.js";
+import { Text } from "@earendil-works/pi-tui";
 import {
 	isToolCallEventType,
 	DEFAULT_MAX_BYTES,
@@ -694,6 +696,21 @@ function registerGuardrails(pi: ExtensionAPI) {
 // Fast edit tools (quick_edit / target_edit)
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Quick edit render summary helpers
+// ---------------------------------------------------------------------------
+function getTextFromResult(result: any): string {
+	return result?.content?.map((part: any) => (part.type === "text" ? part.text : "")).join("\n") ?? "";
+}
+
+function formatQuickEditSummary(summary: { added: number; removed: number }, theme: any): string {
+	const parts: string[] = [];
+	if (summary.added > 0) parts.push(theme.fg("toolDiffAdded", `+${summary.added}`));
+	if (summary.removed > 0) parts.push(theme.fg("toolDiffRemoved", `-${summary.removed}`));
+	if (parts.length === 0) return "no changes";
+	return parts.join(" / ");
+}
+
 function registerFastEditTools(pi: ExtensionAPI) {
 	pi.registerTool({
 		name: "quick_edit",
@@ -716,7 +733,18 @@ function registerFastEditTools(pi: ExtensionAPI) {
 		async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
 			const absolutePath = resolve(ctx.cwd, params.path);
 			const text = await withFileMutationQueue(absolutePath, () => applyQuickEdits(absolutePath, params.edits));
-			return { content: [{ type: "text" as const, text }], details: undefined };
+			const summary = summarizeQuickEditOutput(text);
+			const content: Array<{ type: "text"; text: string }> = [{ type: "text" as const, text }];
+			if (summary) {
+				content.push({ type: "text" as const, text: `\n[${summary.added} added, ${summary.removed} removed]` });
+			}
+			return { content, details: undefined };
+		},
+
+		renderResult(result, _options, theme) {
+			const summary = summarizeQuickEditOutput(getTextFromResult(result));
+			if (!summary) return undefined;
+			return new Text(` ${formatQuickEditSummary(summary, theme)}`, 0, 0);
 		},
 	});
 
@@ -737,7 +765,18 @@ function registerFastEditTools(pi: ExtensionAPI) {
 		async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
 			const absolutePath = resolve(ctx.cwd, params.path);
 			const text = await withFileMutationQueue(absolutePath, () => applyTargetEdits(absolutePath, params.ops));
-			return { content: [{ type: "text" as const, text }], details: undefined };
+			const summary = summarizeQuickEditOutput(text);
+			const content: Array<{ type: "text"; text: string }> = [{ type: "text" as const, text }];
+			if (summary) {
+				content.push({ type: "text" as const, text: `\n[${summary.added} added, ${summary.removed} removed]` });
+			}
+			return { content, details: undefined };
+		},
+
+		renderResult(result, _options, theme) {
+			const summary = summarizeQuickEditOutput(getTextFromResult(result));
+			if (!summary) return undefined;
+			return new Text(` ${formatQuickEditSummary(summary, theme)}`, 0, 0);
 		},
 	});
 
