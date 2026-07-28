@@ -12,6 +12,10 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 import { Type, type Static } from "@earendil-works/pi-ai";
+import { EditErrorCode, EditFailureCandidate, EditFailure, FAST_EDIT_ERROR_MARKER, FastEditError, fail, parseFastEditError } from "./fast-edit/edit-error.js";
+
+// Re-export structured error utilities so consumers can retry failed edits.
+export { EditErrorCode, EditFailureCandidate, EditFailure, FAST_EDIT_ERROR_MARKER, FastEditError, parseFastEditError } from "./fast-edit/edit-error.js";
 
 // ---------------------------------------------------------------------------
 // Schemas
@@ -118,55 +122,6 @@ export const TargetEditParams = Type.Object({
 
 export type TargetEditInput = Static<typeof TargetEditParams>;
 export type TargetEditOp = TargetEditInput["ops"][number];
-
-// ---------------------------------------------------------------------------
-// Error utilities
-// ---------------------------------------------------------------------------
-
-export type EditErrorCode =
-	| "EXPECTED_START_LINE_MISMATCH"
-	| "EXPECTED_END_LINE_MISMATCH"
-	| "EXPECTED_LINE_COUNT_MISMATCH"
-	| "RANGE_OUT_OF_BOUNDS"
-	| "INVALID_RANGE"
-	| "OVERLAPPING_RANGES"
-	| "TARGET_NOT_FOUND"
-	| "TARGET_AMBIGUOUS"
-	| "VALIDATION"
-	| "EMPTY_BATCH";
-
-export type EditFailureCandidate = { line: number; text: string };
-
-export type EditFailure = {
-	error_code: EditErrorCode;
-	message: string;
-	edit_index?: number;
-	op_index?: number;
-	at_line?: number;
-	end_line?: number;
-	actual?: string;
-	expected?: string;
-	candidates?: EditFailureCandidate[];
-	suggested?: Record<string, unknown>;
-	details?: Record<string, unknown>;
-};
-
-export const FAST_EDIT_ERROR_MARKER = "--- fast-edit-error ---";
-
-export class FastEditError extends Error {
-	readonly failure: EditFailure;
-
-	constructor(failure: EditFailure, diagnostics: Array<string | undefined> = []) {
-		const body = [failure.message, ...diagnostics.filter((s): s is string => Boolean(s))].join("\n");
-		super(`${body}\n${FAST_EDIT_ERROR_MARKER}\n${JSON.stringify(failure)}`);
-		this.name = "FastEditError";
-		this.failure = failure;
-	}
-}
-
-function fail(failure: EditFailure, diagnostics: Array<string | undefined> = []): never {
-	throw new FastEditError(failure, diagnostics);
-}
 
 // ---------------------------------------------------------------------------
 // Text helpers

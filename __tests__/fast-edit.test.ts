@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import * as fastEdit from '../fast-edit.js';
 
-const { applyQuickEdits, applyTargetEdits, FastEditError, FAST_EDIT_ERROR_MARKER, preferFastEditTools, numberReadText, formatDiffs, formatContexts } = fastEdit;
+const { applyQuickEdits, applyTargetEdits, FastEditError, FAST_EDIT_ERROR_MARKER, parseFastEditError, preferFastEditTools, numberReadText, formatDiffs, formatContexts } = fastEdit;
 
 async function tempFile(content: string): Promise<string> {
   const dir = await mkdtemp(join(tmpdir(), 'pi-codecraft-test-'));
@@ -227,6 +227,50 @@ describe('FastEditError', () => {
   });
 });
 
+
+describe('parseFastEditError', () => {
+  it('parses a FastEditError instance', () => {
+    const failure: fastEdit.EditFailure = { error_code: 'VALIDATION', message: 'bad input' };
+    const parsed = parseFastEditError(new FastEditError(failure));
+    expect(parsed).toEqual(expect.objectContaining(failure));
+  });
+
+  it('parses a plain string containing the marker', () => {
+    const failure = { error_code: 'TARGET_NOT_FOUND', message: 'target missing' };
+    const err = `oops\n${FAST_EDIT_ERROR_MARKER}\n${JSON.stringify(failure)}`;
+    const parsed = parseFastEditError(err);
+    expect(parsed).toEqual(expect.objectContaining(failure));
+  });
+
+  it('parses a generic Error whose message contains the marker', () => {
+    const failure = { error_code: 'RANGE_OUT_OF_BOUNDS', message: 'range bad' };
+    const err = new Error(`context\n${FAST_EDIT_ERROR_MARKER}\n${JSON.stringify(failure)}`);
+    const parsed = parseFastEditError(err);
+    expect(parsed).toEqual(expect.objectContaining(failure));
+  });
+
+  it('returns undefined when the marker is missing', () => {
+    expect(parseFastEditError('something went wrong')).toBeUndefined();
+    expect(parseFastEditError(new Error('something went wrong'))).toBeUndefined();
+  });
+
+  it('returns undefined for invalid JSON after the marker', () => {
+    const err = `prefix\n${FAST_EDIT_ERROR_MARKER}\nnot-json{`;
+    expect(parseFastEditError(err)).toBeUndefined();
+  });
+
+  it('parses a valid payload after an invalid earlier marker', () => {
+    const failure: fastEdit.EditFailure = { error_code: 'TARGET_NOT_FOUND', message: 'target missing' };
+    const err = `bad\n${FAST_EDIT_ERROR_MARKER}\nnot-json\n---\n${FAST_EDIT_ERROR_MARKER}\n${JSON.stringify(failure)}`;
+    expect(parseFastEditError(err)).toEqual(expect.objectContaining(failure));
+  });
+
+  it('returns undefined for non-error non-string inputs', () => {
+    expect(parseFastEditError(null)).toBeUndefined();
+    expect(parseFastEditError(42)).toBeUndefined();
+    expect(parseFastEditError({ error_code: 'TARGET_NOT_FOUND' })).toBeUndefined();
+  });
+});
 describe('preferFastEditTools', () => {
   it('removes edit/substitute_edit and ensures quick_edit/target_edit', () => {
     expect(preferFastEditTools(['edit', 'substitute_edit', 'ls'])).toEqual(['ls', 'quick_edit', 'target_edit']);
