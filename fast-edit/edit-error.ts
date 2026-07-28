@@ -55,17 +55,18 @@ export function parseFastEditError(error: unknown): EditFailure | undefined {
     return undefined;
   }
 
-  const markerIndex = message.indexOf(FAST_EDIT_ERROR_MARKER);
-  if (markerIndex === -1) return undefined;
-
-  const json = message.slice(markerIndex + FAST_EDIT_ERROR_MARKER.length).trim();
-  try {
-    const parsed = JSON.parse(json) as EditFailure;
-    if (parsed && typeof parsed.error_code === "string" && typeof parsed.message === "string") {
-      return parsed;
+  let markerIndex = message.indexOf(FAST_EDIT_ERROR_MARKER);
+  while (markerIndex !== -1) {
+    const json = message.slice(markerIndex + FAST_EDIT_ERROR_MARKER.length).trim();
+    try {
+      const parsed = JSON.parse(json) as EditFailure;
+      if (parsed && typeof parsed.error_code === "string" && typeof parsed.message === "string") {
+        return parsed;
+      }
+    } catch {
+      // ignore parse errors and try the next marker occurrence
     }
-  } catch {
-    // ignore parse errors
+    markerIndex = message.indexOf(FAST_EDIT_ERROR_MARKER, markerIndex + 1);
   }
   return undefined;
 }

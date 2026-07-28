@@ -230,7 +230,7 @@ describe('FastEditError', () => {
 
 describe('parseFastEditError', () => {
   it('parses a FastEditError instance', () => {
-    const failure = { error_code: 'VALIDATION', message: 'bad input' };
+    const failure: fastEdit.EditFailure = { error_code: 'VALIDATION', message: 'bad input' };
     const parsed = parseFastEditError(new FastEditError(failure));
     expect(parsed).toEqual(expect.objectContaining(failure));
   });
@@ -257,6 +257,12 @@ describe('parseFastEditError', () => {
   it('returns undefined for invalid JSON after the marker', () => {
     const err = `prefix\n${FAST_EDIT_ERROR_MARKER}\nnot-json{`;
     expect(parseFastEditError(err)).toBeUndefined();
+  });
+
+  it('parses a valid payload after an invalid earlier marker', () => {
+    const failure: fastEdit.EditFailure = { error_code: 'TARGET_NOT_FOUND', message: 'target missing' };
+    const err = `bad\n${FAST_EDIT_ERROR_MARKER}\nnot-json\n---\n${FAST_EDIT_ERROR_MARKER}\n${JSON.stringify(failure)}`;
+    expect(parseFastEditError(err)).toEqual(expect.objectContaining(failure));
   });
 
   it('returns undefined for non-error non-string inputs', () => {
