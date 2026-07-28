@@ -119,6 +119,25 @@ export const TargetEditParams = Type.Object({
 export type TargetEditInput = Static<typeof TargetEditParams>;
 export type TargetEditOp = TargetEditInput["ops"][number];
 
+const SubstitutionParams = Type.Object(
+	{
+		old: Type.String({ minLength: 1, description: "Literal text to find." }),
+		new: Type.String({ description: "Replacement text." }),
+		count: Type.Integer({ minimum: 1, description: "Expected number of occurrences in the selected line range." }),
+	},
+	{ description: "Single-line literal substitution." },
+);
+
+export const SubstituteEditParams = Type.Object({
+	path: Type.String({ description: "Path to the file to edit." }),
+	start: Type.Integer({ minimum: 1, description: "1-indexed inclusive start line number." }),
+	end: Type.Integer({ minimum: 1, description: "1-indexed inclusive end line number." }),
+	substitutions: Type.Array(SubstitutionParams, { minItems: 1, description: "Ordered single-line substitutions." }),
+});
+export type SubstituteEditInput = Static<typeof SubstituteEditParams>;
+export type SubstitutionSpec = SubstituteEditInput["substitutions"][number];
+
+
 // ---------------------------------------------------------------------------
 // Error utilities
 // ---------------------------------------------------------------------------
@@ -894,12 +913,145 @@ export async function applyTargetEdits(absolutePath: string, ops: TargetEditOp[]
 }
 
 // ---------------------------------------------------------------------------
+// substitute_edit
+// ---------------------------------------------------------------------------
+
+function countOccurrences(haystack: string, needle: string): number {
+	let count = 0;
+	for (let i = 0; i <= haystack.length - needle.length; i++) {
+		if (haystack.slice(i, i + needle.length) === needle) {
+			count++;
+			i += Math.max(1, needle.length) - 1;
+		}
+	}
+	return count;
+}
+
+function applySubstitution(
+	lines: string[],
+	substitution: SubstitutionSpec,
+	startIndex: number,
+	endIndex: number,
+	substitutionIndex: number,
+): string[] {
+	if (substitution.old.includes("\n") || substitution.old.includes("\r")) {
+		fail({
+			error_code: "VALIDATION",
+			message: `substitutions[${substitutionIndex}] old must be single-line`,
+			details: { old: substitution.old },
+		});
+	}
+	if (substitution.new.includes("\n") || substitution.new.includes("\r")) {
+		fail({
+			error_code: "VALIDATION",
+			message: `substitutions[${substitutionIndex}] new must be single-line`,
+			details: { new: substitution.new },
+		});
+	}
+	if (substitution.old.length === 0) {
+		fail({
+			error_code: "VALIDATION",
+			message: `substitutions[${substitutionIndex}] old must not be empty`,
+		});
+	}
+	if (substitution.old === substitution.new) {
+		fail({
+			error_code: "VALIDATION",
+			message: `substitutions[${substitutionIndex}] old and new must differ`,
+		});
+	}
+	if (!Number.isInteger(substitution.count) || substitution.count < 1) {
+		fail({
+			error_code: "VALIDATION",
+			message: `substitutions[${substitutionIndex}] count must be a positive integer`,
+		});
+	}
+
+	let actual = 0;
+	for (let lineIndex = startIndex; lineIndex <= endIndex; lineIndex++) {
+		actual += countOccurrences(lines[lineIndex]!, substitution.old);
+	}
+	if (actual !== substitution.count) {
+		fail({
+			error_code: "VALIDATION",
+			message: `substitutions[${substitutionIndex}] expected ${substitution.count} occurrence(s) of ${JSON.stringify(substitution.old)}, found ${actual}`,
+			at_line: startIndex + 1,
+			end_line: endIndex + 1,
+			actual: String(actual),
+			expected: String(substitution.count),
+			details: { old: substitution.old, found: actual, expected_count: substitution.count, search_range: [startIndex + 1, endIndex + 1] },
+		});
+	}
+
+	for (let lineIndex = startIndex; lineIndex <= endIndex; lineIndex++) {
+		lines[lineIndex] = lines[lineIndex]!.split(substitution.old).join(substitution.new);
+	}
+	return lines;
+}
+
+export async function applySubstituteEdits(absolutePath: string, params: SubstituteEditInput): Promise<string> {
+	const { start, end, substitutions } = params;
+	if (!Number.isInteger(start) || start < 1) {
+		fail({ error_code: "VALIDATION", message: "start must be a positive integer", at_line: typeof start === "number" ? start : undefined });
+	}
+	if (!Number.isInteger(end) || end < 1) {
+		fail({ error_code: "VALIDATION", message: "end must be a positive integer", end_line: typeof end === "number" ? end : undefined });
+	}
+	if (end < start) {
+		fail({ error_code: "INVALID_RANGE", message: "end < start", at_line: start, end_line: end });
+	}
+	if (substitutions.length === 0) {
+		fail({ error_code: "EMPTY_BATCH", message: "substitutions must contain at least one substitution" });
+	}
+
+	const content = await readFile(absolutePath, "utf8");
+	const source = splitBom(content);
+	const lines = splitLines(source.text);
+	if (start > lines.length || end > lines.length) {
+		fail({
+			error_code: "RANGE_OUT_OF_BOUNDS",
+			message: `range ${start}-${end} exceeds ${lines.length} line(s)`,
+			at_line: start,
+			end_line: end,
+			details: { line_count: lines.length },
+		});
+	}
+
+	const originalLines = [...lines];
+	const startIndex = start - 1;
+	const endIndex = end - 1;
+	let mutatedLines = [...lines];
+	for (let i = 0; i < substitutions.length; i++) {
+		mutatedLines = applySubstitution(mutatedLines, substitutions[i]!, startIndex, endIndex, i);
+	}
+
+	const lineEnding = detectLineEnding(source.text);
+	const hadTrailingNewline = source.text.endsWith("\n");
+	let newContent = mutatedLines.join(lineEnding);
+	if (hadTrailingNewline && mutatedLines.length > 0) newContent += lineEnding;
+	await writeFile(absolutePath, joinBom(newContent, source.bom), "utf8");
+
+	const diff = diffOf(originalLines, mutatedLines);
+	const parts: string[] = [];
+	if (diff) {
+		const diffOut = formatDiffs([diff]);
+		if (diffOut) parts.push(diffOut);
+		const ctxOut = formatContexts(mutatedLines, [{
+			startIndex: Math.max(0, diff.newStart - 1 - CONTEXT_LINES),
+			endIndex: Math.min(mutatedLines.length, diff.newStart - 1 + diff.newLines.length + CONTEXT_LINES),
+		}]);
+		if (ctxOut) parts.push(ctxOut);
+	}
+	return parts.join("\n\n");
+}
+
+// ---------------------------------------------------------------------------
 // Active tool preference
 // ---------------------------------------------------------------------------
 
 export function preferFastEditTools(activeTools: string[]): string[] {
 	const withoutDisabled = activeTools.filter((name) => name !== "edit" && name !== "substitute_edit");
-	for (const name of ["quick_edit", "target_edit"]) {
+	for (const name of ["quick_edit", "target_edit", "substitute_edit"]) {
 		if (!withoutDisabled.includes(name)) withoutDisabled.push(name);
 	}
 	return withoutDisabled;

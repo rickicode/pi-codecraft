@@ -229,11 +229,11 @@ describe('FastEditError', () => {
 
 describe('preferFastEditTools', () => {
   it('removes edit/substitute_edit and ensures quick_edit/target_edit', () => {
-    expect(preferFastEditTools(['edit', 'substitute_edit', 'ls'])).toEqual(['ls', 'quick_edit', 'target_edit']);
+    expect(preferFastEditTools(['edit', 'substitute_edit', 'ls'])).toEqual(['ls', 'quick_edit', 'target_edit', 'substitute_edit']);
   });
 
   it('does not duplicate quick_edit/target_edit', () => {
-    expect(preferFastEditTools(['quick_edit', 'target_edit'])).toEqual(['quick_edit', 'target_edit']);
+    expect(preferFastEditTools(['quick_edit', 'target_edit'])).toEqual(['quick_edit', 'target_edit', 'substitute_edit']);
   });
 });
 
@@ -283,5 +283,143 @@ describe('formatContexts', () => {
     ]);
     expect(out).toContain('1| a');
     expect(out).toContain('4| d');
+  });
+});
+
+describe('applySubstituteEdits', () => {
+  it('applies a single literal substitution within range', async () => {
+    const path = await tempFile('one\ntwo\nthree\n');
+    const out = await fastEdit.applySubstituteEdits(path, {
+      path,
+      start: 1,
+      end: 3,
+      substitutions: [{ old: 'two', new: 'TWO', count: 1 }],
+    });
+    expect(await readFile(path, 'utf8')).toBe('one\nTWO\nthree\n');
+    expect(out).toContain('- two');
+    expect(out).toContain('+ TWO');
+  });
+
+  it('applies multiple ordered substitutions', async () => {
+    const path = await tempFile('a b c\na b c\n');
+    await fastEdit.applySubstituteEdits(path, {
+      path,
+      start: 1,
+      end: 2,
+      substitutions: [
+        { old: 'a', new: 'x', count: 2 },
+        { old: 'b', new: 'y', count: 2 },
+      ],
+    });
+    expect(await readFile(path, 'utf8')).toBe('x y c\nx y c\n');
+  });
+
+  it('allows later substitutions to match text produced by earlier ones', async () => {
+    const path = await tempFile('foo bar\n');
+    await fastEdit.applySubstituteEdits(path, {
+      path,
+      start: 1,
+      end: 1,
+      substitutions: [
+        { old: 'foo', new: 'baz', count: 1 },
+        { old: 'baz bar', new: 'hello', count: 1 },
+      ],
+    });
+    expect(await readFile(path, 'utf8')).toBe('hello\n');
+  });
+
+  it('rejects count mismatch', async () => {
+    const path = await tempFile('x\nx\nx\n');
+    await expect(
+      fastEdit.applySubstituteEdits(path, {
+        path,
+        start: 1,
+        end: 3,
+        substitutions: [{ old: 'x', new: 'y', count: 2 }],
+      }),
+    ).rejects.toMatchObject({ failure: { error_code: 'VALIDATION' } });
+  });
+
+  it('respects start/end range boundaries', async () => {
+    const path = await tempFile('x\nx\nx\n');
+    await fastEdit.applySubstituteEdits(path, {
+      path,
+      start: 2,
+      end: 3,
+      substitutions: [{ old: 'x', new: 'y', count: 2 }],
+    });
+    expect(await readFile(path, 'utf8')).toBe('x\ny\ny\n');
+  });
+
+  it('rejects empty old', async () => {
+    const path = await tempFile('abc\n');
+    await expect(
+      fastEdit.applySubstituteEdits(path, {
+        path,
+        start: 1,
+        end: 1,
+        substitutions: [{ old: '', new: 'x', count: 1 }],
+      }),
+    ).rejects.toMatchObject({ failure: { error_code: 'VALIDATION' } });
+  });
+
+  it('rejects old === new', async () => {
+    const path = await tempFile('abc\n');
+    await expect(
+      fastEdit.applySubstituteEdits(path, {
+        path,
+        start: 1,
+        end: 1,
+        substitutions: [{ old: 'a', new: 'a', count: 1 }],
+      }),
+    ).rejects.toMatchObject({ failure: { error_code: 'VALIDATION' } });
+  });
+
+  it('rejects multi-line old', async () => {
+    const path = await tempFile('abc\n');
+    await expect(
+      fastEdit.applySubstituteEdits(path, {
+        path,
+        start: 1,
+        end: 1,
+        substitutions: [{ old: 'a\nb', new: 'x', count: 1 }],
+      }),
+    ).rejects.toMatchObject({ failure: { error_code: 'VALIDATION' } });
+  });
+
+  it('preserves BOM', async () => {
+    const path = await tempFile('\uFEFFone\ntwo\n');
+    await fastEdit.applySubstituteEdits(path, {
+      path,
+      start: 1,
+      end: 2,
+      substitutions: [{ old: 'one', new: 'ONE', count: 1 }],
+    });
+    const content = await readFile(path, 'utf8');
+    expect(content.startsWith('\uFEFF')).toBe(true);
+    expect(content).toBe('\uFEFFONE\ntwo\n');
+  });
+
+  it('preserves CRLF line endings', async () => {
+    const path = await tempFile('one\r\ntwo\r\n');
+    await fastEdit.applySubstituteEdits(path, {
+      path,
+      start: 1,
+      end: 2,
+      substitutions: [{ old: 'two', new: 'TWO', count: 1 }],
+    });
+    expect(await readFile(path, 'utf8')).toBe('one\r\nTWO\r\n');
+  });
+
+  it('rejects range out of bounds', async () => {
+    const path = await tempFile('a\nb\n');
+    await expect(
+      fastEdit.applySubstituteEdits(path, {
+        path,
+        start: 1,
+        end: 5,
+        substitutions: [{ old: 'a', new: 'b', count: 1 }],
+      }),
+    ).rejects.toMatchObject({ failure: { error_code: 'RANGE_OUT_OF_BOUNDS' } });
   });
 });
