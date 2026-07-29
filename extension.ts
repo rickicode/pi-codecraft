@@ -8,7 +8,7 @@
  *   - `format_file` to run Prettier or Biome automatically
  *   - `git_status` to inspect repo state before finishing
  *   - `trash` to move deleted files/folders to /tmp (no `rm`)
- *   - `quick_edit` / `target_edit` via fast-edit (standalone editing tools)
+ *   - `quick_edit` / `target_edit` / `substitute_edit` via fast-edit (standalone editing tools)
  *   - Injected system-prompt rules that tell the model to avoid
  *     `apply_patch`, built-in grep/find, destructive rm, and to use
  *     git/format/trash tools.
@@ -30,10 +30,12 @@ import { Type } from "@earendil-works/pi-ai";
 import {
 	applyQuickEdits,
 	applyTargetEdits,
+	applySubstituteEdits,
 	preferFastEditTools,
 	numberReadText,
 	QuickEditParams,
 	TargetEditParams,
+	SubstituteEditParams,
 } from "./fast-edit.js";
 import {
 	isToolCallEventType,
@@ -737,6 +739,28 @@ function registerFastEditTools(pi: ExtensionAPI) {
 		async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
 			const absolutePath = resolve(ctx.cwd, params.path);
 			const text = await withFileMutationQueue(absolutePath, () => applyTargetEdits(absolutePath, params.ops));
+			return { content: [{ type: "text" as const, text }], details: undefined };
+		},
+	});
+
+	pi.registerTool({
+		name: "substitute_edit",
+		label: "substitute-edit",
+		description:
+			"Edit a file by single-line literal substitutions inside an inclusive line range. Each substitution requires an expected count of occurrences. Atomic: any mismatch rejects the whole batch.",
+		promptSnippet: "Edit files by ordered single-line literal substitutions with expected counts",
+		promptGuidelines: [
+			"Use substitute_edit to replace small literal fragments within a known line range when you know the exact number of replacements expected.",
+			"Each substitution must be single-line; use \\n or \\r in old/new is not allowed.",
+			"Set count to the exact number of occurrences of old in the start..end range before applying.",
+			"Substitutions are applied sequentially; earlier replacements affect later ones.",
+			"Prefer target_edit for unstructured target text or quick_edit for whole-line edits.",
+		],
+		parameters: SubstituteEditParams,
+
+		async execute(_toolCallId, params, _signal, _onUpdate, ctx) {
+			const absolutePath = resolve(ctx.cwd, params.path);
+			const text = await withFileMutationQueue(absolutePath, () => applySubstituteEdits(absolutePath, params));
 			return { content: [{ type: "text" as const, text }], details: undefined };
 		},
 	});
