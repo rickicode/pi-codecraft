@@ -170,6 +170,43 @@ describe('applyTargetEdits', () => {
     expect(await readFile(path, 'utf8')).toBe('alpha\nbeta\ngamma\n');
   });
 
+  it('returns per-op diffs for sequential replacements', async () => {
+    const path = await tempFile('a\nb\nc\nd\n');
+    const out = await applyTargetEdits(path, [
+      { type: 'replace', target: 'b', replacement: 'B' },
+      { type: 'replace', target: 'c', replacement: 'C' },
+    ]);
+    expect(await readFile(path, 'utf8')).toBe('a\nB\nC\nd\n');
+    expect(out).toContain('- b');
+    expect(out).toContain('+ B');
+    expect(out).toContain('- c');
+    expect(out).toContain('+ C');
+  });
+
+  it('rebases later diff line numbers when earlier op inserts lines', async () => {
+    const path = await tempFile('a\nb\nc\nd\n');
+    const out = await applyTargetEdits(path, [
+      { type: 'insert_before', target: 'b', line: 2, lines: ['X'] },
+      { type: 'replace', target: 'c', replacement: 'C' },
+    ]);
+    expect(await readFile(path, 'utf8')).toBe('a\nX\nb\nC\nd\n');
+    expect(out).toContain('+ X');
+    expect(out).toContain('+ C');
+    expect(out).toMatch(/:4/);
+  });
+
+  it('rebases later diffs when earlier op deletes lines', async () => {
+    const path = await tempFile('a\nb\nc\nd\ne\n');
+    const out = await applyTargetEdits(path, [
+      { type: 'delete', target: 'b' + '\n' },
+      { type: 'replace', target: 'd', replacement: 'D' },
+    ]);
+    expect(await readFile(path, 'utf8')).toBe('a\nc\nD\ne\n');
+    expect(out).toContain('- b');
+    expect(out).toContain('+ D');
+    expect(out).toMatch(/:3/);
+  });
+
   it('reports TARGET_NOT_FOUND', async () => {
     const path = await tempFile('abc\n');
     await expect(

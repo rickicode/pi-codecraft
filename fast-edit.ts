@@ -124,6 +124,33 @@ export type TargetEditInput = Static<typeof TargetEditParams>;
 export type TargetEditOp = TargetEditInput["ops"][number];
 
 // ---------------------------------------------------------------------------
+// LineState helpers for per-operation diff/rebase in target_edit
+// ---------------------------------------------------------------------------
+
+export type LineState = { lines: string[]; trailingNewline: boolean };
+
+export function splitToLineState(content: string): LineState {
+	const text = splitBom(content).text;
+	const trailingNewline = text.endsWith("\n");
+	const lines = splitLines(text);
+	return { lines, trailingNewline };
+}
+
+export function lineStateToString(state: LineState, lineEnding: "\r\n" | "\n" = "\n"): string {
+	let text = state.lines.join(lineEnding);
+	if (state.trailingNewline && state.lines.length > 0) text += lineEnding;
+	return text;
+}
+
+export function diffLines(before: LineState, after: LineState): EditDiff | undefined {
+	return diffOf(before.lines, after.lines);
+}
+
+export function rebasePriorDiffs(diffs: EditDiff[], newStart: number, delta: number): EditDiff[] {
+	return diffs.map((d) => (d.newStart >= newStart ? { ...d, newStart: d.newStart + delta } : d));
+}
+
+// ---------------------------------------------------------------------------
 // Text helpers
 // ---------------------------------------------------------------------------
 
@@ -776,10 +803,13 @@ export async function applyTargetEdits(absolutePath: string, ops: TargetEditOp[]
 	const lineEnding = detectLineEnding(source.text);
 	const trailingNewline = source.text.endsWith("\n");
 	const originalLines = splitLines(source.text);
+	const originalState: LineState = { lines: originalLines, trailingNewline };
 
-	// We iterate over ops sequentially. Each op works on the current text state.
-	let text = originalLines.join("\n");
-
+	// Maintain a LineState through each operation. After every op, compute a
+	// minimal EditDiff with diffLines(before, after) and rebase prior diffs
+	// whenever an op shifts line numbers.
+	let state = originalState;
+	const priorDiffs: EditDiff[] = [];
 	for (const [index, op] of ops.entries()) {
 		if (op.type !== "replace" && op.type !== "delete" && op.type !== "insert_before" && op.type !== "insert_after") {
 			fail({ error_code: "VALIDATION", message: `op[${index}] unknown type`, op_index: index });
@@ -793,9 +823,16 @@ export async function applyTargetEdits(absolutePath: string, ops: TargetEditOp[]
 			fail({ error_code: "VALIDATION", message: `op[${index}] lines must not be empty`, op_index: index });
 		}
 
-		const textLines = splitLinesWithOffsets(text);
-		const occurrences = selectedOccurrences(op, text, textLines, index);
+		// Use the line array without the trailing newline so insertion/deletion math
+		// matches the original sequential text implementation.
+		const workingText = state.lines.join("\n");
+		const textLines = splitLinesWithOffsets(workingText);
+		const occurrences = selectedOccurrences(op, workingText, textLines, index);
 
+		// Snapshot before this op for per-op diff computation.
+		const beforeState: LineState = { lines: [...state.lines], trailingNewline: state.trailingNewline };
+
+		let text = workingText;
 		switch (op.type) {
 			case "replace": {
 				const effectiveReplacement = op.matchMode === "trim" ? trimReplacementEdges(op.replacement) : unescapeLiteral(op.replacement);
@@ -827,27 +864,39 @@ export async function applyTargetEdits(absolutePath: string, ops: TargetEditOp[]
 				break;
 			}
 		}
+
+		// Update LineState, compute per-op diff, rebase prior diffs if line
+		// numbers shifted, and accumulate the result.
+		state = { lines: splitLines(text), trailingNewline: state.trailingNewline };
+		const opDiff = diffLines(beforeState, state);
+		if (opDiff) {
+			const delta = opDiff.newLines.length - opDiff.oldLines.length;
+			if (delta !== 0) {
+				const rebased = rebasePriorDiffs(priorDiffs, opDiff.newStart, delta);
+				priorDiffs.length = 0;
+				priorDiffs.push(...rebased);
+			}
+			priorDiffs.push(opDiff);
+		}
 	}
 
-	const finalLines = splitLines(text);
+	const finalLines = state.lines;
 	let newContent = finalLines.join(lineEnding);
 	if (trailingNewline && finalLines.length > 0) newContent += lineEnding;
 	await writeFile(absolutePath, joinBom(newContent, source.bom), "utf8");
 
-	const diff = diffOf(originalLines, finalLines);
+	// Build combined output from the accumulated per-op diffs and their contexts.
 	const parts: string[] = [];
-	if (diff) {
-		const diffOut = formatDiffs([diff]);
-		if (diffOut) parts.push(diffOut);
-		const ctxOut = formatContexts(finalLines, [{
-			startIndex: Math.max(0, diff.newStart - 1 - CONTEXT_LINES),
-			endIndex: Math.min(finalLines.length, diff.newStart - 1 + diff.newLines.length + CONTEXT_LINES),
-		}]);
-		if (ctxOut) parts.push(ctxOut);
-	}
+	const diffOut = formatDiffs(priorDiffs);
+	if (diffOut) parts.push(diffOut);
+	const contextRanges: ContextRange[] = priorDiffs.map((diff) => ({
+		startIndex: Math.max(0, diff.newStart - 1 - CONTEXT_LINES),
+		endIndex: Math.min(finalLines.length, diff.newStart - 1 + diff.newLines.length + CONTEXT_LINES),
+	}));
+	const ctxOut = formatContexts(finalLines, contextRanges);
+	if (ctxOut) parts.push(ctxOut);
 	return parts.join("\n\n");
 }
-
 // ---------------------------------------------------------------------------
 // Active tool preference
 // ---------------------------------------------------------------------------
