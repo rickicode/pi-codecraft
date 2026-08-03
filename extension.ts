@@ -35,6 +35,8 @@ import {
 	QuickEditParams,
 	TargetEditParams,
 } from "./fast-edit.js";
+
+import { Text } from "@earendil-works/pi-tui";
 import {
 	isToolCallEventType,
 	DEFAULT_MAX_BYTES,
@@ -693,6 +695,25 @@ function registerGuardrails(pi: ExtensionAPI) {
 // ---------------------------------------------------------------------------
 // Fast edit tools (quick_edit / target_edit)
 // ---------------------------------------------------------------------------
+
+/**
+ * Extracts text content from tool result objects.
+ */
+function getTextFromResult(result: any): string {
+    return result?.content?.map((part: any) => (part.type === "text" ? part.text : "")).join("\n") ?? "";
+}
+
+/**
+ * Formats quick edit summary with colored statistics.
+ */
+function formatQuickEditSummary(summary: { added: number; removed: number }, theme: any): string {
+    const parts: string[] = [];
+    if (summary.added > 0) parts.push(theme.fg("toolDiffAdded", `+${summary.added}`));
+    if (summary.removed > 0) parts.push(theme.fg("toolDiffRemoved", `-${summary.removed}`));
+    if (parts.length === 0) return "no changes";
+    return parts.join(" / ");
+}
+
 
 function registerFastEditTools(pi: ExtensionAPI) {
 	pi.registerTool({

@@ -366,3 +366,33 @@ describe('formatContexts', () => {
     expect(out).toContain('4| d');
   });
 });
+
+
+describe('summarizeQuickEditOutput', () => {
+    it('counts added and removed lines in a diff block', () => {
+        const text = `── diff ──\n:2\n- two\n+ TWO\n\nContext lines`;
+        const summary = summarizeQuickEditOutput(text);
+        expect(summary).toEqual({ added: 1, removed: 1 });
+    });
+
+    it('returns undefined when there is no diff marker', () => {
+        const text = 'some plain output\nwithout a diff';
+        expect(summarizeQuickEditOutput(text)).toBeUndefined();
+    });
+
+    it('stops counting at the terminator', () => {
+        const text = `── diff ──\n+ added\n- removed\n---\n+ not counted`;
+        const summary = summarizeQuickEditOutput(text);
+        expect(summary).toEqual({ added: 1, removed: 1 });
+    });
+
+    it('returns undefined when there are no +/- lines', () => {
+        const text = '── diff ──\n:3\nplain context';
+        expect(summarizeQuickEditOutput(text)).toBeUndefined();
+    });
+
+    it('counts multiple insertions and deletions', () => {
+        const text = `── diff ──\n:2-4\n- a\n- b\n+ x\n+ y\n+ z`;
+        expect(summarizeQuickEditOutput(text)).toEqual({ added: 3, removed: 2 });
+    });
+});
