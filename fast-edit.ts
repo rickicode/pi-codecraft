@@ -162,6 +162,35 @@ function joinBom(text: string, bom: boolean): string {
 	return bom ? `\uFEFF${text}` : text;
 }
 
+
+// ---------------------------------------------------------------------------
+// Render summary
+// ---------------------------------------------------------------------------
+export interface QuickEditRenderSummary {
+    added: number;
+    removed: number;
+}
+
+export function summarizeQuickEditOutput(text: string): QuickEditRenderSummary | undefined {
+	const marker = "── diff ──";
+	const terminator = "---";
+	const outputLines = text.split(/\r?\n/);
+	const start = outputLines.findIndex((line) => line === marker);
+	if (start === -1) return undefined;
+
+	const end = outputLines.findIndex((line, index) => index > start && line === terminator);
+	const lines = end === -1 ? outputLines.slice(start) : outputLines.slice(start, end);
+	let added = 0;
+	let removed = 0;
+
+	for (const line of lines) {
+		if (line.startsWith("+ ")) added++;
+		else if (line.startsWith("- ")) removed++;
+	}
+
+	if (added === 0 && removed === 0) return undefined;
+	return { added, removed };
+}
 function splitLines(content: string): string[] {
 	if (content === "") return [];
 	const trimmed = content.endsWith("\n") ? content.slice(0, content.endsWith("\r\n") ? -2 : -1) : content;

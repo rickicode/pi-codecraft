@@ -34,7 +34,10 @@ import {
 	numberReadText,
 	QuickEditParams,
 	TargetEditParams,
+	summarizeQuickEditOutput,
 } from "./fast-edit.js";
+
+import { Text } from "@earendil-works/pi-tui";
 import {
 	isToolCallEventType,
 	DEFAULT_MAX_BYTES,
@@ -550,7 +553,7 @@ function registerGitStatus(pi: ExtensionAPI) {
 			}
 
 			const text = [status || "No changes.", diffStat ? `\nDiff stat:\n${diffStat}` : ""]
-				join("\n")
+				.join("\n")
 				.trim();
 
 			return {
@@ -694,6 +697,25 @@ function registerGuardrails(pi: ExtensionAPI) {
 // Fast edit tools (quick_edit / target_edit)
 // ---------------------------------------------------------------------------
 
+/**
+ * Extracts text content from tool result objects.
+ */
+function getTextFromResult(result: any): string {
+    return result?.content?.map((part: any) => (part.type === "text" ? part.text : "")).join("\n") ?? "";
+}
+
+/**
+ * Formats quick edit summary with colored statistics.
+ */
+function formatQuickEditSummary(summary: { added: number; removed: number }, theme: any): string {
+    const parts: string[] = [];
+    if (summary.added > 0) parts.push(theme.fg("toolDiffAdded", `+${summary.added}`));
+    if (summary.removed > 0) parts.push(theme.fg("toolDiffRemoved", `-${summary.removed}`));
+    if (parts.length === 0) return "no changes";
+    return parts.join(" / ");
+}
+
+
 function registerFastEditTools(pi: ExtensionAPI) {
 	pi.registerTool({
 		name: "quick_edit",
@@ -718,6 +740,10 @@ function registerFastEditTools(pi: ExtensionAPI) {
 			const text = await withFileMutationQueue(absolutePath, () => applyQuickEdits(absolutePath, params.edits));
 			return { content: [{ type: "text" as const, text }], details: undefined };
 		},
+		renderResult: (result, _options, theme, _context) => {
+			const summary = summarizeQuickEditOutput(getTextFromResult(result));
+			return summary ? new Text(formatQuickEditSummary(summary, theme), 1, 0) : undefined;
+		},
 	});
 
 	pi.registerTool({
@@ -738,6 +764,10 @@ function registerFastEditTools(pi: ExtensionAPI) {
 			const absolutePath = resolve(ctx.cwd, params.path);
 			const text = await withFileMutationQueue(absolutePath, () => applyTargetEdits(absolutePath, params.ops));
 			return { content: [{ type: "text" as const, text }], details: undefined };
+		},
+		renderResult: (result, _options, theme, _context) => {
+			const summary = summarizeQuickEditOutput(getTextFromResult(result));
+			return summary ? new Text(formatQuickEditSummary(summary, theme), 1, 0) : undefined;
 		},
 	});
 
