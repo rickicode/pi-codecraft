@@ -11,6 +11,7 @@
  */
 
 import { readFile, writeFile } from "node:fs/promises";
+import { closeLineMatches, formatCloseLineMatches, formatAnchorBlockHints } from "./fast-edit/fuzzy.js";
 import { Type, type Static } from "@earendil-works/pi-ai";
 import { EditErrorCode, EditFailureCandidate, EditFailure, FAST_EDIT_ERROR_MARKER, FastEditError, fail, parseFastEditError } from "./fast-edit/edit-error.js";
 
@@ -305,7 +306,7 @@ export function formatContexts(lines: string[], ranges: ContextRange[]): string 
 
 type ResolvedEdit = { startLine: number; endLine: number; lines: string[]; insert: boolean };
 
-function resolveMatchMode(edit: Edit, label: string, editIndex: number): "exact" | "trim" {
+function resolveMatchMode(edit: Exclude<Edit, { start: "eof" }>, label: string, editIndex: number): "exact" | "trim" {
 	if (edit.expectedStartLineMatch) {
 		if (edit.expectedStartLineMatch !== "exact" && edit.expectedStartLineMatch !== "trim") {
 			fail({ error_code: "VALIDATION", message: `${label} expectedStartLineMatch must be "exact" or "trim"`, edit_index: editIndex });
@@ -319,12 +320,12 @@ function resolveMatchMode(edit: Edit, label: string, editIndex: number): "exact"
 	return "exact";
 }
 
-function resolvePreserveIndent(edit: Edit): boolean {
+function resolvePreserveIndent(edit: Exclude<Edit, { start: "eof" }>): boolean {
 	if (edit.preserveIndent !== undefined) return edit.preserveIndent;
 	return edit.whitespace === "indent_tolerant";
 }
 
-function validateQuickLineRange(lineCount: number, edit: Edit, label: string, editIndex: number): ResolvedEdit {
+function validateQuickLineRange(lineCount: number, edit: any, label: string, editIndex: number): ResolvedEdit {
 	if (edit.start === "eof") {
 		if (edit.end !== undefined) {
 			fail({ error_code: "INVALID_RANGE", message: `${label} end must not be set when start="eof"`, edit_index: editIndex });
@@ -388,12 +389,13 @@ export async function applyQuickEdits(absolutePath: string, edits: Edit[]): Prom
 
 	for (let i = 0; i < edits.length; i++) {
 		const edit = edits[i]!;
+		const lineEdit = edit as Exclude<Edit, { start: "eof" }>;
 		const resolvedEdit = resolved[i]!;
-		const matchMode = resolveMatchMode(edit, `edit[${i}]`, i);
+		const matchMode = resolveMatchMode(lineEdit, `edit[${i}]`, i);
 
 		if (resolvedEdit.insert) continue;
 
-		if (edit.expectedStartLine === undefined) {
+		if (lineEdit.expectedStartLine === undefined) {
 			fail({
 				error_code: "VALIDATION",
 				message: `edit[${i}] expectedStartLine is required (omit only for start="eof")`,
@@ -404,10 +406,11 @@ export async function applyQuickEdits(absolutePath: string, edits: Edit[]): Prom
 		}
 
 		const actual = lines[resolvedEdit.startLine - 1] ?? "";
-		if (!lineMatches(actual, edit.expectedStartLine, matchMode)) {
-			const candidates = matchingLineNumbers(lines, edit.expectedStartLine, matchMode);
-			const trimCandidates = matchMode === "exact" ? matchingLineNumbers(lines, edit.expectedStartLine, "trim") : [];
-			const allCandidates = Array.from(new Set([...candidates, ...trimCandidates]));
+		if (!lineMatches(actual, lineEdit.expectedStartLine, matchMode)) {
+			const candidates = matchingLineNumbers(lines, lineEdit.expectedStartLine, matchMode);
+			const trimCandidates = matchMode === "exact" ? matchingLineNumbers(lines, lineEdit.expectedStartLine, "trim") : [];
+			const fuzzyCandidates = closeLineMatches(lines, lineEdit.expectedStartLine, { maxResults: 5, minScore: 0.5 });
+			const allCandidates = Array.from(new Set([...candidates, ...trimCandidates, ...fuzzyCandidates.map((m) => m.line)]));
 			const suggested: Record<string, unknown> = {};
 			if (allCandidates.length === 1) {
 				suggested.start = allCandidates[0];
@@ -423,47 +426,55 @@ export async function applyQuickEdits(absolutePath: string, edits: Edit[]): Prom
 					edit_index: i,
 					at_line: resolvedEdit.startLine,
 					actual,
-					expected: edit.expectedStartLine,
+					expected: lineEdit.expectedStartLine,
 					candidates: formatCandidates(lines, allCandidates),
 					suggested: Object.keys(suggested).length ? suggested : undefined,
 				},
-				[candidates.length ? `Expected start line found at line(s): ${candidates.join(", ")}` : undefined],
+				[
+					candidates.length ? `Expected start line found at line(s): ${candidates.join(", ")}` : undefined,
+					formatCloseLineMatches(lines, lineEdit.expectedStartLine, "expectedStartLine"),
+				],
 			);
 		}
 
-		if (edit.expectedLineCount !== undefined) {
+		if (lineEdit.expectedLineCount !== undefined) {
 			const actualCount = resolvedEdit.endLine - resolvedEdit.startLine + 1;
-			if (actualCount !== edit.expectedLineCount) {
+			if (actualCount !== lineEdit.expectedLineCount) {
 				fail({
 					error_code: "EXPECTED_LINE_COUNT_MISMATCH",
 					message: `edit[${i}] expectedLineCount mismatch for range ${resolvedEdit.startLine}-${resolvedEdit.endLine}`,
 					edit_index: i,
 					at_line: resolvedEdit.startLine,
 					end_line: resolvedEdit.endLine,
-					details: { expected_line_count: edit.expectedLineCount, actual_line_count: actualCount },
+					details: { expected_line_count: lineEdit.expectedLineCount, actual_line_count: actualCount },
 					suggested: { expectedLineCount: actualCount },
 				});
 			}
 		}
 
-		if (edit.expectedEndLine !== undefined) {
+		if (lineEdit.expectedEndLine !== undefined) {
 			const actualEnd = lines[resolvedEdit.endLine - 1] ?? "";
-			if (!lineMatches(actualEnd, edit.expectedEndLine, matchMode)) {
-				const candidates = matchingLineNumbers(lines, edit.expectedEndLine, matchMode);
-				fail({
-					error_code: "EXPECTED_END_LINE_MISMATCH",
-					message: `edit[${i}] expectedEndLine mismatch at line ${resolvedEdit.endLine}`,
-					edit_index: i,
-					at_line: resolvedEdit.startLine,
-					end_line: resolvedEdit.endLine,
-					actual: actualEnd,
-					expected: edit.expectedEndLine,
-					candidates: formatCandidates(lines, candidates),
-				});
+			if (!lineMatches(actualEnd, lineEdit.expectedEndLine, matchMode)) {
+				const candidates = matchingLineNumbers(lines, lineEdit.expectedEndLine, matchMode);
+				const fuzzyCandidates = closeLineMatches(lines, lineEdit.expectedEndLine, { maxResults: 5, minScore: 0.5 });
+				const allCandidates = Array.from(new Set([...candidates, ...fuzzyCandidates.map((m) => m.line)]));
+				fail(
+					{
+						error_code: "EXPECTED_END_LINE_MISMATCH",
+						message: `edit[${i}] expectedEndLine mismatch at line ${resolvedEdit.endLine}`,
+						edit_index: i,
+						at_line: resolvedEdit.startLine,
+						end_line: resolvedEdit.endLine,
+						actual: actualEnd,
+						expected: lineEdit.expectedEndLine,
+						candidates: formatCandidates(lines, allCandidates),
+					},
+					[formatCloseLineMatches(lines, lineEdit.expectedEndLine, "expectedEndLine")],
+				);
 			}
 		}
 
-		if (resolvePreserveIndent(edit)) {
+		if (resolvePreserveIndent(lineEdit)) {
 			resolvedEdit.lines = withPreservedIndent(resolvedEdit.lines, leadingIndent(actual));
 		}
 	}
@@ -691,7 +702,15 @@ function selectedOccurrences(op: TargetEditOp, text: string, textLines: TextLine
 	resolveOccurrenceLines(occurrences.trimmed, textLines);
 	const all = allOccurrences(occurrences);
 	if (all.length === 0) {
-		fail({ error_code: "TARGET_NOT_FOUND", message: `op[${index}] target not found: ${JSON.stringify(op.target)}`, op_index: index, expected: op.target });
+		const isMultiLine = op.target.includes("\n");
+		const targetFirstLine = op.target.split("\n")[0] ?? "";
+		fail(
+			{ error_code: "TARGET_NOT_FOUND", message: `op[${index}] target not found: ${JSON.stringify(op.target)}`, op_index: index, expected: op.target },
+			[
+				formatCloseLineMatches(textLines.map((l) => l.text), targetFirstLine, isMultiLine ? "target first line" : "target"),
+				isMultiLine ? formatAnchorBlockHints(textLines.map((l) => l.text), op.target) : undefined,
+			],
+		);
 	}
 
 	const lineCount = textLines.length;
