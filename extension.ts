@@ -34,6 +34,7 @@ import {
 	numberReadText,
 	QuickEditParams,
 	TargetEditParams,
+	summarizeQuickEditOutput,
 } from "./fast-edit.js";
 
 import { Text } from "@earendil-works/pi-tui";
@@ -552,7 +553,7 @@ function registerGitStatus(pi: ExtensionAPI) {
 			}
 
 			const text = [status || "No changes.", diffStat ? `\nDiff stat:\n${diffStat}` : ""]
-				join("\n")
+				.join("\n")
 				.trim();
 
 			return {
@@ -739,6 +740,10 @@ function registerFastEditTools(pi: ExtensionAPI) {
 			const text = await withFileMutationQueue(absolutePath, () => applyQuickEdits(absolutePath, params.edits));
 			return { content: [{ type: "text" as const, text }], details: undefined };
 		},
+		renderResult: (result, _options, theme, _context) => {
+			const summary = summarizeQuickEditOutput(getTextFromResult(result));
+			return summary ? new Text(formatQuickEditSummary(summary, theme), 1, 0) : undefined;
+		},
 	});
 
 	pi.registerTool({
@@ -759,6 +764,10 @@ function registerFastEditTools(pi: ExtensionAPI) {
 			const absolutePath = resolve(ctx.cwd, params.path);
 			const text = await withFileMutationQueue(absolutePath, () => applyTargetEdits(absolutePath, params.ops));
 			return { content: [{ type: "text" as const, text }], details: undefined };
+		},
+		renderResult: (result, _options, theme, _context) => {
+			const summary = summarizeQuickEditOutput(getTextFromResult(result));
+			return summary ? new Text(formatQuickEditSummary(summary, theme), 1, 0) : undefined;
 		},
 	});
 

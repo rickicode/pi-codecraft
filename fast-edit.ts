@@ -172,28 +172,24 @@ export interface QuickEditRenderSummary {
 }
 
 export function summarizeQuickEditOutput(text: string): QuickEditRenderSummary | undefined {
-    const marker = "── diff ──";
-    const terminator = "---";
-    const start = text.indexOf(marker);
-    if (start === -1) return undefined;
+	const marker = "── diff ──";
+	const terminator = "---";
+	const outputLines = text.split(/\r?\n/);
+	const start = outputLines.findIndex((line) => line === marker);
+	if (start === -1) return undefined;
 
-    let end = text.indexOf(terminator, start + marker.length);
-    if (end === -1) {
-        end = text.length;
-    }
+	const end = outputLines.findIndex((line, index) => index > start && line === terminator);
+	const lines = end === -1 ? outputLines.slice(start) : outputLines.slice(start, end);
+	let added = 0;
+	let removed = 0;
 
-    const diffBlock = text.slice(start, end);
-    const lines = diffBlock.split("\n");
-    let added = 0;
-    let removed = 0;
+	for (const line of lines) {
+		if (line.startsWith("+ ")) added++;
+		else if (line.startsWith("- ")) removed++;
+	}
 
-    for (const line of lines) {
-        if (line.startsWith("+ ")) added++;
-        else if (line.startswith("- ")) removed++;
-    }
-
-    if (added === 0 && removed === 0) return undefined;
-    return { added, removed };
+	if (added === 0 && removed === 0) return undefined;
+	return { added, removed };
 }
 function splitLines(content: string): string[] {
 	if (content === "") return [];
